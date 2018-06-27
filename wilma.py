@@ -9,7 +9,7 @@ try:
 	from urllib2 import urlopen
 except ImportError:
 	from urllib.request import urlopen
-url = "https://nextcloud.yourserver.com/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+url = "https://nextcloud.yourserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
 
 # aktuelle Zeit ermitteln
 now_utc=datetime.now(pytz.utc)
