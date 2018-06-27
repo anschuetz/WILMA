@@ -22,7 +22,10 @@ body {
     background-color: #2874b2;
     height: 99%;
 }
-
+.fett {
+  font-size: 2em;
+  font-style: initial;
+}
 .ueberschrift { 
   color: rgb(255,250,220);
   margin-left: 15px;
