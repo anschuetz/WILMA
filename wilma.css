@@ -1,5 +1,3 @@
-/* Applies to the entire body of the HTML document (except where overridden by more specific
-selectors). */
 body {
   margin: 5px;
   background-color: rgb(0,0,0);
@@ -7,7 +5,6 @@ body {
   font-size: 14px;
 }
 
-/* Applies to all elements with <... class="someclass"> specified. */
 .eintrag { 
   margin: 15px;
   border: 1px solid blue;
