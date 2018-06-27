@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import pytz, requests, sys
 from datetime import datetime, timedelta
 from ics import Calendar
+from importlib import reload
 reload(sys)
-sys.setdefaultencoding("UTF-8")
 
 try:
 	from urllib2 import urlopen
@@ -17,9 +17,23 @@ tz = pytz.timezone('Europe/Berlin')
 now=tz.normalize(now_utc)
 #print(str(now))
 # HTML-Datei vorbereiten
-htmlkopf='<html><head><link rel="stylesheet" href="wilma.css"><meta charset="UTF-8"><meta http-equiv="refresh" content="5"><title>Anzeige</title></head><body>'
-htmlbody='<div class="kopf"><div class="ueberschrift">MoRZ-WILMA</div><div class="ueberschrift2"><b>W</b>ichtige <b>I</b>nformationen <b>L</b>esbar am <b>M</b>onitor <b>A</b>ngezeigt</div><div class="zeit">'+str(now)+'</div>'
-htmlfuss="</body></html>"
+htmlkopf='\
+        <html>\
+                <head>\
+                        <link rel="stylesheet" href="wilma.css">\
+                        <meta charset="UTF-8">\
+                        <meta http-equiv="refresh" content="5">\
+                        <title>Anzeige</title>\
+                </head>\
+                <body>'
+htmlbody='\
+                        <div class="kopf">\
+                        <div class="ueberschrift">MoRZ-WILMA</div>\
+                        <div class="ueberschrift2"><b>W</b>ichtige <b>I</b>nformationen <b>L</b>esbar am <b>M</b>onitor <b>A</b>ngezeigt</div>\
+                        <div class="zeit">'+str(now)+'</div>'
+htmlfuss="\
+                </body>\
+        </html>"
 
 inhalt=htmlkopf+htmlbody
 
