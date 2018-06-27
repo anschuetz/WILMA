@@ -25,6 +25,7 @@ body {
 .fett {
   font-size: 2em;
   font-style: initial;
+  color: rgb(255,120,120);
 }
 .ueberschrift { 
   color: rgb(255,250,220);

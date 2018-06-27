@@ -28,8 +28,8 @@ htmlkopf='\
                 <body>'
 htmlbody='\
                         <div class="kopf">\
-                        <div class="ueberschrift">MoRZ-WILMA</div>\
-                        <div class="ueberschrift2"><span class="fett">W</span>ichtige <span class="fett">I</span>nformationen <span class="fett">L</span>esbar am <span class="fett">M</span>onitor <span class="fett">A</span>ngezeigt</div>\
+                        <span class="ueberschrift">MoRZ-WILMA</span>\
+                        <span class="ueberschrift2"><span class="fett">W</span>ichtige <span class="fett">I</span>nformationen <span class="fett">L</span>esbar am <span class="fett">M</span>onitor <span class="fett">A</span>ngezeigt</span>\
                         <div class="zeit">'+str(now)+'</div>'
 htmlfuss="\
                 </body>\
