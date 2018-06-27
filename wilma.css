@@ -16,7 +16,7 @@ body {
   background-color: rgb(255,250,220); 
 }
 .kopf { 
-	column-count: 2;
+  column-count: 1;
 	margin: 5px;
   	border: 1px solid blue;
   	border-radius: 10px;
