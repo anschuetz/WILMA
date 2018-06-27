@@ -22,7 +22,8 @@ body {
   	border-radius: 10px;
   	box-shadow: 3px 3px;
   	shadow-color: #1854a2;
-  	background-color: #2874b2;
+    background-color: #2874b2;
+    height: 500px;
 }
 
 .ueberschrift { 
