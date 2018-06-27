@@ -1,1 +1,79 @@
-/var/www/html/wilma.css
+/* Applies to the entire body of the HTML document (except where overridden by more specific
+selectors). */
+body {
+  margin: 5px;
+  background-color: rgb(0,0,0);
+  font-family: arial, sans-serif;
+  font-size: 14px;
+}
+
+/* Applies to all elements with <... class="someclass"> specified. */
+.eintrag { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(255,250,220); 
+}
+.kopf { 
+	column-count: 2;
+	margin: 5px;
+  	border: 1px solid blue;
+  	border-radius: 10px;
+  	box-shadow: 3px 3px;
+  	shadow-color: #1854a2;
+  	background-color: #2874b2;
+}
+
+.ueberschrift { 
+  color: rgb(255,250,220);
+  margin-left: 15px;
+  margin-right: 5px;
+  font-size: 22px;
+  font-weight: normal;
+  margin-top: 5px;
+  margin-bottom: 1px;
+ }
+.ueberschrift2 { 
+  color: rgb(255,250,120);
+  margin-left: 15px;
+  margin-right: 5px;
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: 5px;
+  margin-bottom: 1px;
+ }
+.zeit { 
+  color: rgb(22,22,33);
+  margin-left: 15px;
+  margin-right: 5px;
+  font-size: 8px;
+  font-weight: normal;
+  margin-top: 5px;
+  margin-bottom: 1px;
+ }
+
+.titel { 
+  color: rgb(22,22,33);
+  margin-left: 15px;
+  margin-right: 5px;
+  font-size: 22px;
+  font-weight: normal;
+  margin-top: 5px;
+  margin-bottom: 1px;
+ }
+.ort {
+  color: red;
+  margin-left: 15px;
+  margin-right: 5px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+ }
+.beschreibung {
+  color: green;
+  margin-top: 2px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+  margin-right: 5px;
+ }
+
