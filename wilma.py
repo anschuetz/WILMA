@@ -9,12 +9,13 @@ try:
 	from urllib2 import urlopen
 except ImportError:
 	from urllib.request import urlopen
-url = "https://nextcloud.yourserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
-
+url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+print("############# neuer Lauf beginnt")
 # aktuelle Zeit ermitteln
 now_utc=datetime.now(pytz.utc)
 tz = pytz.timezone('Europe/Berlin')
 now=tz.normalize(now_utc)
+print(now)
 #print(str(now))
 # HTML-Datei vorbereiten
 htmlkopf='\
@@ -44,8 +45,15 @@ try:
         for e in c.events:
            show = (e.end > now) & (now > e.begin)
            if show:
-                 print("Erzeuge Event: "+e.name)
-                 inhalt+='<div class="eintrag">'
+                 alter=abs(e.begin-now).seconds
+                 if alter < 3600:
+                     div="eintragneu"
+                 else:
+                     div="eintragalt"
+                 print("-----------------------------------------")
+                 print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
+                 print("delta-second: {}".format(str(abs(e.begin-now).seconds)))
+                 inhalt+='<div class="'+div+'">'
               #   if show:
               #   inhalt+='<div class="ort">Wird gezeigt ab '+str(e.begin)+' bis '+str(e.end)+'- jetzt ist: '+str(now)+'</div>'
               #   else:
