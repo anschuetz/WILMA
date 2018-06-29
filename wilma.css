@@ -98,15 +98,15 @@ body {
   border: 1px solid red;
   border-radius: 10px;
   box-shadow: 3px 3px;
-  background-color: rgb(250,80,80); 
+  background-color:yellow; 
 }
 
 .eintragtodo9 { 
   margin: 15px;
-  border: 3px solid blue;
+  border: 3px solid yellow;
   border-radius: 10px;
   box-shadow: 3px 3px;
-  background-color: rgb(255,30,30); 
+  background-color: red; 
 }
 .kopf { 
   column-count: 1;
