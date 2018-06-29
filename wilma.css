@@ -12,6 +12,30 @@ body {
   box-shadow: 3px 3px;
   background-color: rgb(255,250,220); 
 }
+
+.eintragalt { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(255,250,220); 
+}
+
+.eintragneu { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(255,220,220); 
+}
+
+.eintragtodo { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(220,250,220); 
+}
 .kopf { 
   column-count: 1;
 	margin: 5px;

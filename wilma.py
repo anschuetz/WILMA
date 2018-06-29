@@ -49,11 +49,11 @@ c = Calendar(requests.get(url).text)
 try:
         for t in c.todos:
                 if t.percent < 100:
-                        div = "eintrag"
+                        div = "eintragtodo"
                         print("------------------------------------------------------------")
                         print("-- {} -- Erzeuge Todo '{}', {}% erledigt".format(now, t.name, t.percent))
                         inhalt+='<div class="'+div+'">'
-                        inhalt+='<div class="titel">' + t.name + '</div>'
+                        inhalt+='<div class="titel">' + t.name + ' (Prio:' + t.percent + ')' '</div>'
                         inhalt+="</div>"
 except all:
         print("Todos lesen klappt nicht")
