@@ -6,11 +6,11 @@
 ##                                                                   ##
 #######################################################################
 import pytz, requests, sys
-reload(sys)
+from importlib import reload
 from datetime import datetime, timedelta
 from ics import Calendar
-from importlib import reload
 from urllib.request import urlopen
+reload(sys)
 
 url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
 html_dateiname = "/var/www/html/wilma.html"
