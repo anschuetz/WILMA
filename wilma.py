@@ -47,6 +47,17 @@ inhalt = htmlkopf + htmlbody
 # Kalender abfragen
 c = Calendar(requests.get(url).text)
 try:
+        for t in c.todos:
+                div = "eintrag"
+                print("------------------------------------------------------------")
+                print("-- {} -- Erzeuge Todo '{}'".format(now, t.name))
+                print("-- RAW-Data: {}".format(t))
+                inhalt+='<div class="'+div+'">'
+                inhalt+='<div class="titel">' + t.name + '</div>'
+                inhalt+="</div>"
+except all:
+        print("Todos lesen klappt nicht")
+try:
         # Events durchlaufen
         for e in c.events:
            show = (e.end > now) & (now > e.begin)
