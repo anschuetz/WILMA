@@ -53,7 +53,7 @@ try:
                         print("------------------------------------------------------------")
                         print("-- {} -- Erzeuge Todo '{}', {}% erledigt".format(now, t.name, t.percent))
                         inhalt+='<div class="'+div+'">'
-                        inhalt+='<div class="titel">' + t.name + ' (Prio:' + t.percent + ')' '</div>'
+                        inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.percent) + ')' '</div>'
                         inhalt+="</div>"
 except all:
         print("Todos lesen klappt nicht")
