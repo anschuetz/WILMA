@@ -52,11 +52,11 @@ try:
         while prio >= 0:
                 for t in c.todos:
 #                        print("###### der nächste Eintrag sollte so sein: Prozent: {}, Priorität {}, Prio_soll: {}, Bool Prio {}, Bool gesamt: {}".format(str(t.percent), str(t.priority), str(prio), str(t.priority==prio), str( (t.priority==prio) & (t.percent<100) )))
-                        if str(t.due) == "None"
+                        if repr(t.due) == "None"
                                 vor_ende = True
                         else
                                 vor_ende = (t.due > now)
-                        if str(t.begin) == "None"
+                        if repr(t.begin) == "None"
                                 nach_beginn = True
                         else
                                 nach_beginn = (now > t.begin)
