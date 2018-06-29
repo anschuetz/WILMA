@@ -1,22 +1,26 @@
 #!/usr/bin/python3
+#######################################################################
+## MORZ-WILMA: Wichtige Informationen Leserlich am Monitor Angezeigt ##
+##                                                                   ##
+## jesko.anschuetz@linuxmuster.net - Juni 2018	                     ##
+##                                                                   ##
+#######################################################################
 import pytz, requests, sys
+reload(sys)
 from datetime import datetime, timedelta
 from ics import Calendar
 from importlib import reload
-reload(sys)
+from urllib.request import urlopen
 
-try:
-	from urllib2 import urlopen
-except ImportError:
-	from urllib.request import urlopen
-url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
-print("############# neuer Lauf beginnt")
+url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+
+print("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
-now_utc=datetime.now(pytz.utc)
-tz = pytz.timezone('Europe/Berlin')
-now=tz.normalize(now_utc)
+now_utc = datetime.now(pytz.utc)
+tz      = pytz.timezone('Europe/Berlin')
+now		= tz.normalize(now_utc)
 print(now)
-#print(str(now))
+
 # HTML-Datei vorbereiten
 htmlkopf='\
         <html>\
@@ -32,11 +36,11 @@ htmlbody='\
                         <span class="ueberschrift">MoRZ-WILMA</span>\
                         <span class="ueberschrift2"><span class="fett">W</span>ichtige <span class="fett">I</span>nformationen <span class="fett">L</span>esbar am <span class="fett">M</span>onitor <span class="fett">A</span>ngezeigt</span>\
                         <div class="zeit">'+str(now)+'</div>'
-htmlfuss="\
+htmlfuss = "\
                 </body>\
         </html>"
 
-inhalt=htmlkopf+htmlbody
+inhalt = htmlkopf + htmlbody
 
 # Kalender abfragen
 c = Calendar(requests.get(url).text)
@@ -45,14 +49,14 @@ try:
         for e in c.events:
            show = (e.end > now) & (now > e.begin)
            if show:
-                 alter=abs(e.begin-now).seconds
+                 alter = abs(e.begin-now).seconds
                  if alter < 3600:
-                     div="eintragneu"
+                     div = "eintragneu"
                  else:
-                     div="eintragalt"
-                 print("-----------------------------------------")
+                     div = "eintragalt"
+                 print("------------------------------------------------------------")
                  print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
-                 print("delta-second: {}".format(str(abs(e.begin-now).seconds)))
+                 print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
                  inhalt+='<div class="'+div+'">'
               #   if show:
               #   inhalt+='<div class="ort">Wird gezeigt ab '+str(e.begin)+' bis '+str(e.end)+'- jetzt ist: '+str(now)+'</div>'
