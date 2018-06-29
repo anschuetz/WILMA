@@ -58,7 +58,7 @@ try:
                                 print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
                                 inhalt+='<div class="'+div+'">'
                                 inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + '/'+ str(prio) +')' '</div>'
-                                if repr(e.description) != "None":
+                                if repr(t.description) != "None":
                                         inhalt+='<div class="beschreibung">'+t.description+'</div>'
                                 inhalt+="</div>"
                 prio -= 1
