@@ -47,14 +47,17 @@ inhalt = htmlkopf + htmlbody
 # Kalender abfragen
 c = Calendar(requests.get(url).text)
 try:
-        for t in c.todos:
-                if t.percent < 100:
-                        div = "eintragtodo"+str(t.priority)
-                        print("------------------------------------------------------------")
-                        print("-- {} -- Erzeuge Todo '{}', {}% erledigt".format(now, t.name, t.percent))
-                        inhalt+='<div class="'+div+'">'
-                        inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + ')' '</div>'
-                        inhalt+="</div>"
+        prio = 9
+        while prio >= 0:
+                for t in c.todos:
+                        if (t.percent < 100) & (t.priority == prio):
+                                div = "eintragtodo"+str(t.priority)
+                                print("------------------------------------------------------------")
+                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt".format(now, t.name, t.percent))
+                                inhalt+='<div class="'+div+'">'
+                                inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + ')' '</div>'
+                                inhalt+="</div>"
+                prio -= 1
 except all:
         print("Todos lesen klappt nicht")
 try:
