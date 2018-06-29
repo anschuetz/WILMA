@@ -13,7 +13,9 @@ from importlib import reload
 from urllib.request import urlopen
 
 url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
-
+html_dateiname = "/var/www/html/wilma.html"
+css_dateiname  = "wilma.css"
+meta_refresh_rate = "5"
 print("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
 now_utc = datetime.now(pytz.utc)
@@ -25,10 +27,10 @@ print(now)
 htmlkopf='\
         <html>\
                 <head>\
-                        <link rel="stylesheet" href="wilma.css">\
+                        <link rel="stylesheet" href="'+css_dateiname+'">\
                         <meta charset="UTF-8">\
-                        <meta http-equiv="refresh" content="5">\
-                        <title>Anzeige</title>\
+                        <meta http-equiv="refresh" content="'+meta_refresh_rate+'">\
+                        <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>\
                 </head>\
                 <body>'
 htmlbody='\
@@ -58,10 +60,6 @@ try:
                  print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
                  print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
                  inhalt+='<div class="'+div+'">'
-              #   if show:
-              #   inhalt+='<div class="ort">Wird gezeigt ab '+str(e.begin)+' bis '+str(e.end)+'- jetzt ist: '+str(now)+'</div>'
-              #   else:
-              #   inhalt+='<div class="ort">Wird nicht gezeigt seit '+str(e.end)+'- jetzt ist: '+str(now)+'</div>'
                  inhalt+='<div class="titel">' + e.name + '</div>'
                  if repr(e.location) != "None":
                         inhalt+='<div class="ort">'+e.location+'</div>'
@@ -75,8 +73,8 @@ except all:
 
 inhalt+=htmlfuss
 try:
-	datei = open("/var/www/html/wilma.html","w")
+	datei = open(html_dateiname,"w")
 	datei.write(inhalt)
 	datei.close()
 except all:
-	print("error opening file")
+	print("error opening/creating file")
