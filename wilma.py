@@ -52,7 +52,7 @@ try:
         while prio >= 0:
                 for t in c.todos:
 #                        print("###### der nächste Eintrag sollte so sein: Prozent: {}, Priorität {}, Prio_soll: {}, Bool Prio {}, Bool gesamt: {}".format(str(t.percent), str(t.priority), str(prio), str(t.priority==prio), str( (t.priority==prio) & (t.percent<100) )))
-                        if (t.percent < 100) & (((10-t.priority) % 10) == prio):
+                        if (t.percent < 100) & (((10-t.priority) % 10) == prio) & (t.due > now) & (now > t.begin):
                                 div = "eintragtodo"+str(prio)
                                 print("------------------------------------------------------------")
                                 print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
