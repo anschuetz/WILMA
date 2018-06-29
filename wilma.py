@@ -64,7 +64,7 @@ try:
               #   inhalt+='<div class="ort">Wird nicht gezeigt seit '+str(e.end)+'- jetzt ist: '+str(now)+'</div>'
                  inhalt+='<div class="titel">' + e.name + '</div>'
                  if repr(e.location) != "None":
-                        inhalt+='<div class="ort"> ('+e.location+') </div>'
+                        inhalt+='<div class="ort">'+e.location+'</div>'
                  if repr(e.description) != "None":
                         inhalt+='<div class="beschreibung">'+e.description+'</div>'
                  inhalt+="</div>"
