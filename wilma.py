@@ -12,7 +12,7 @@ from ics import Calendar
 from urllib.request import urlopen
 reload(sys)
 
-url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
 html_dateiname = "/var/www/html/wilma.html"
 css_dateiname  = "wilma.css"
 meta_refresh_rate = "5"
@@ -58,6 +58,8 @@ try:
                                 print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
                                 inhalt+='<div class="'+div+'">'
                                 inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + '/'+ str(prio) +')' '</div>'
+                                if repr(e.description) != "None":
+                                        inhalt+='<div class="beschreibung">'+t.description+'</div>'
                                 inhalt+="</div>"
                 prio -= 1
 except all:
