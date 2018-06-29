@@ -12,7 +12,7 @@ from ics import Calendar
 from urllib.request import urlopen
 reload(sys)
 
-url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
 html_dateiname = "/var/www/html/wilma.html"
 css_dateiname  = "wilma.css"
 meta_refresh_rate = "5"
@@ -47,15 +47,17 @@ inhalt = htmlkopf + htmlbody
 # Kalender abfragen
 c = Calendar(requests.get(url).text)
 try:
+        print(c)
         prio = 9
         while prio >= 0:
                 for t in c.todos:
-                        if (t.percent < 100) & (t.priority == prio):
-                                div = "eintragtodo"+str(t.priority)
+#                        print("###### der nächste Eintrag sollte so sein: Prozent: {}, Priorität {}, Prio_soll: {}, Bool Prio {}, Bool gesamt: {}".format(str(t.percent), str(t.priority), str(prio), str(t.priority==prio), str( (t.priority==prio) & (t.percent<100) )))
+                        if (t.percent < 100) & (((10-t.priority) % 10) == prio):
+                                div = "eintragtodo"+str(prio)
                                 print("------------------------------------------------------------")
-                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt".format(now, t.name, t.percent))
+                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
                                 inhalt+='<div class="'+div+'">'
-                                inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + ')' '</div>'
+                                inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + '/'+ str(prio) +')' '</div>'
                                 inhalt+="</div>"
                 prio -= 1
 except all:
