@@ -29,12 +29,84 @@ body {
   background-color: rgb(255,220,220); 
 }
 
-.eintragtodo { 
+.eintragtodo0 { 
   margin: 15px;
   border: 1px solid blue;
   border-radius: 10px;
   box-shadow: 3px 3px;
   background-color: rgb(220,250,220); 
+}
+
+.eintragtodo1 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(200,250,200); 
+}
+
+.eintragtodo2 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(180,250,180); 
+}
+
+.eintragtodo3 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(160,250,160); 
+}
+
+.eintragtodo4 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(140,250,140); 
+}
+
+.eintragtodo5 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(120,250,120); 
+}
+
+.eintragtodo6 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(250,120,120); 
+}
+
+.eintragtodo7 { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(250,100,100); 
+}
+
+.eintragtodo8 { 
+  margin: 15px;
+  border: 1px solid red;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(250,80,80); 
+}
+
+.eintragtodo9 { 
+  margin: 15px;
+  border: 3px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(255,30,30); 
 }
 .kopf { 
   column-count: 1;
