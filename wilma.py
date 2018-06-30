@@ -12,6 +12,7 @@ from ics import Calendar
 from urllib.request import urlopen
 reload(sys)
 
+debugflag = True
 url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
 html_dateiname = "/var/www/html/wilma.html"
 css_dateiname  = "wilma.css"
@@ -24,52 +25,69 @@ now		= tz.normalize(now_utc)
 print(now)
 
 # HTML-Datei vorbereiten
-htmlkopf='\
-        <html>\
-                <head>\
-                        <link rel="stylesheet" href="'+css_dateiname+'">\
-                        <meta charset="UTF-8">\
-                        <meta http-equiv="refresh" content="'+meta_refresh_rate+'">\
-                        <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>\
-                </head>\
-                <body>'
-htmlbody='\
-                        <div class="kopf">\
-                        <span class="ueberschrift">MoRZ-WILMA</span>\
-                        <span class="ueberschrift2"><span class="fett">W</span>ichtige <span class="fett">I</span>nformationen <span class="fett">L</span>esbar am <span class="fett">M</span>onitor <span class="fett">A</span>ngezeigt</span>\
-                        <div class="zeit">'+str(now)+'</div>'
-htmlfuss = "\
-                </body>\
-        </html>"
+# Den Kopf:
+htmlkopf ='<html>'
+htmlkopf+=' <head>'
+htmlkopf+='   <link rel="stylesheet" href="'+css_dateiname+'">'
+htmlkopf+='   <meta charset="UTF-8">'
+htmlkopf+='   <meta http-equiv="refresh" content="'+meta_refresh_rate+'">'
+htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>'
+htmlkopf+=' </head>'
+htmlkopf+=' <body>'
 
-inhalt = htmlkopf + htmlbody
+# Die Einleitung vom Hauptteil
+htmlbody ='    <div class="kopf">'
+htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>'
+htmlbody+='    <span class="ueberschrift2">'
+htmlbody+='        <span class="fett">W</span>ichtige '
+htmlbody+='        <span class="fett">I</span>nformationen '
+htmlbody+='        <span class="fett">L</span>esbar am '
+htmlbody+='        <span class="fett">M</span>onitor '
+htmlbody+='        <span class="fett">A</span>ngezeigt'
+htmlbody+='    </span>'
+htmlbody+='    <div class="zeit">'+str(now)+'</div>'
+
+# Den Abschluss der Seite
+htmlfuss =' </body>'
+htmlfuss+='</html>'
 
 # Kalender abfragen
-c = Calendar(requests.get(url).text)
 try:
-        print(c)
+        c = Calendar(requests.get(url).text)
+        if debugflag:
+                        print(c)
         prio = 9
+        # Nach Priorität geordnet ausgeben, beginnend mit der höchsten.
         while prio >= 0:
                 for t in c.todos:
-#                        print("###### der nächste Eintrag sollte so sein: Prozent: {}, Priorität {}, Prio_soll: {}, Bool Prio {}, Bool gesamt: {}".format(str(t.percent), str(t.priority), str(prio), str(t.priority==prio), str( (t.priority==prio) & (t.percent<100) )))
+                        # falls keine Fälligkeitszeit angegeben ist, anzeigen, ansonsten prüfen ob noch aktuell
                         if repr(t.due) == "None":
                                 vor_ende = True
                         else:
                                 vor_ende = (t.due > now)
+                        # falls keine Startzeit angegeben ist, anzeigen, ansonsten prüfen ob schon aktuell
                         if repr(t.begin) == "None":
                                 nach_beginn = True
                         else:
                                 nach_beginn = (now > t.begin)
-
+                        # wenn noch nicht 100% UND Priorität stimmt und zwischen den Daten, dann anzeigen.
+                        # Nextcloud speichert die Priorität falschrum (1 = hoch und 9 = niedrig. 0 = ohne)
                         if (t.percent < 100) & (((10-t.priority) % 10) == prio) & vor_ende & nach_beginn:
-                                div = "eintragtodo"+str(prio)
-                                print("------------------------------------------------------------")
-                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
-                                inhalt+='<div class="'+div+'">'
-                                inhalt+='<div class="titel">' + t.name + ' (Prio:' + str(t.priority) + '/'+ str(prio) +')' '</div>'
+                                # css-Klasse passend zur Priorität auswählen
+                                div_klasse = "eintragtodo"+str(prio)
+                                if debugflag:
+                                                print("------------------------------------------------------------")
+                                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
+                                inhalt+='   <div class="'+div_klasse+'">'
+                                inhalt+='     <div class="titel">' + t.name
+                                if debugflag:
+                                                #nur im debugmodus die Priorität dazu schreiben
+                                                inhalt+=' (Prio:' + str(t.priority) + '/'+ str(prio) +')'
+                                inhalt+='     </div>'
+                                # Nur bei gesetzter Beschreibung, diese auch ausgeben
                                 if repr(t.description) != "None":
                                         inhalt+='<div class="beschreibung">'+t.description+'</div>'
-                                inhalt+="</div>"
+                                inhalt+='   </div>'
                 prio -= 1
 except all:
         print("Todos lesen klappt nicht")
@@ -83,25 +101,29 @@ try:
                      div = "eintragneu"
                  else:
                      div = "eintragalt"
-                 print("------------------------------------------------------------")
-                 print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
-                 print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
-                 inhalt+='<div class="'+div+'">'
-                 inhalt+='<div class="titel">' + e.name + '</div>'
+                 if debugflag:
+                        print("------------------------------------------------------------")
+                        print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
+                        print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
+                 inhalt+='   <div class="'+div+'">'
+                 inhalt+='     <div class="titel">' + e.name + '</div>'
                  if repr(e.location) != "None":
-                        inhalt+='<div class="ort">'+e.location+'</div>'
+                        inhalt+='     <div class="ort">'+e.location+'</div>'
                  if repr(e.description) != "None":
-                        inhalt+='<div class="beschreibung">'+e.description+'</div>'
-                 inhalt+="</div>"
+                        inhalt+='     <div class="beschreibung">'+e.description+'</div>'
+                 inhalt+="   </div>"
 except all:
         inhalt+='<div class="eintrag">'
         inhalt+='<div class="titel">etwas ist schief gelaufen bei der Abfrage</div>'
         inhalt+='</div>'
 
-inhalt+=htmlfuss
+# Seite zusammensetzen.
+
+htmlseite = htmlkopf + htmlbody + inhalt + htmlfuss
+
 try:
 	datei = open(html_dateiname,"w")
-	datei.write(inhalt)
+	datei.write(htmlseite)
 	datei.close()
 except all:
 	print("error opening/creating file")
