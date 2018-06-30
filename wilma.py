@@ -51,6 +51,7 @@ htmlbody+='    <div class="zeit">'+str(now)+'</div>'
 htmlfuss =' </body>'
 htmlfuss+='</html>'
 
+inhalt = " "
 # Kalender abfragen
 try:
         c = Calendar(requests.get(url).text)
