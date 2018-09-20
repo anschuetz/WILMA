@@ -72,8 +72,18 @@ try:
                                 nach_beginn = (now > t.begin)
                         # wenn noch nicht 100% UND Priorität stimmt und zwischen den Daten, dann anzeigen.
                         # Nextcloud speichert die Priorität falschrum (1 = hoch und 9 = niedrig. 0 = ohne)
-                        if (t.percent < 100) & (((10-t.priority) % 10) == prio) & vor_ende & nach_beginn:
-                                # css-Klasse passend zur Priorität auswählen
+                        # Fehler abfangen, falls Variablen nicht gesetzt sind:
+                        if isinstance(t.percent, int):
+                           prozent = t.percent < 100
+                        else:
+                           prozent = True
+                        if isinstance(t.priority, int):
+                           prioritaetstimmt = ((10-t.priority) % 10) == prio
+                        else:
+                           prioritaetstimmt = 0 == prio
+
+                        if (prozent) & prioritaetstimmt & vor_ende & nach_beginn:
+				# css-Klasse passend zur Priorität auswählen
                                 div_klasse = "eintragtodo"+str(prio)
                                 if debugflag:
                                                 print("------------------------------------------------------------")
