@@ -5,24 +5,38 @@
 ## jesko.anschuetz@linuxmuster.net - Juni 2018	                     ##
 ##                                                                   ##
 #######################################################################
-import pytz, requests, sys
+import pytz, requests, sys, os
 from importlib import reload
 from datetime import datetime, timedelta
 from ics import Calendar
 from urllib.request import urlopen
+from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
 
-debugflag = True
-url = "https://nextcloud.deinserver.de/remote.php/dav/public-calendars/PjstHCE6iXRtCHM9?export"
+debugflag = False
+#debugflag = True
+excelDateiExistiert = False
+excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
+lastModified = ""
+try:
+  f = open(excelDatei)
+  f.close()
+  excelDateiExistiert = True
+except:
+  excelDateiExistiert = False
+
+url = "https://dein-nextcloud-server.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
 html_dateiname = "/var/www/html/wilma.html"
 css_dateiname  = "wilma.css"
 meta_refresh_rate = "5"
-print("############# Programmstart ##############")
+if debugflag:
+   print("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
 now_utc = datetime.now(pytz.utc)
 tz      = pytz.timezone('Europe/Berlin')
 now		= tz.normalize(now_utc)
-print(now)
+if debugflag:
+   print(now)
 
 # HTML-Datei vorbereiten
 # Den Kopf:
@@ -48,7 +62,10 @@ htmlbody+='    </span>'
 htmlbody+='    <div class="zeit">'+str(now)+'</div>'
 
 # Den Abschluss der Seite
-htmlfuss =' </body>'
+htmlfuss ="   <div>"
+htmlfuss+="<iframe src=\"http://localhost/fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>"
+htmlfuss+="   </div>"
+htmlfuss+=' </body>'
 htmlfuss+='</html>'
 
 inhalt = " "
@@ -71,9 +88,19 @@ try:
                                 nach_beginn = True
                         else:
                                 nach_beginn = (now > t.begin)
-                        # wenn noch nicht 100% UND Priorität stimmt und zwischen den Daten, dann anzeigen.
+                        # wenn noch nicht 100% UND Priorität #stimmt und zwischen den Daten, dann anzeigen.
                         # Nextcloud speichert die Priorität falschrum (1 = hoch und 9 = niedrig. 0 = ohne)
-                        if (t.percent < 100) & (((10-t.priority) % 10) == prio) & vor_ende & nach_beginn:
+			# Fehler abfangen, falls Variablen nicht gesetzt sind:
+                        if isinstance(t.percent, int):
+                           prozent = t.percent < 100
+                        else:
+                           prozent = True
+                        if isinstance(t.priority, int):
+                           prioritaetstimmt = ((10-t.priority) % 10) == prio
+                        else:
+                           prioritaetstimmt = 0 == prio
+
+                        if (prozent) & prioritaetstimmt & vor_ende & nach_beginn:
                                 # css-Klasse passend zur Priorität auswählen
                                 div_klasse = "eintragtodo"+str(prio)
                                 if debugflag:
@@ -118,9 +145,64 @@ except all:
         inhalt+='<div class="titel">etwas ist schief gelaufen bei der Abfrage</div>'
         inhalt+='</div>'
 
+
+# die Entschuldtigungen
+anzahlEntschuldigteSchueler=0
+
+entschuldigungKopf ='<div class="entschuldigung">'
+entschuldigung=""
+# Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
+
+if excelDateiExistiert:
+  unixTimeStamp = os.stat(excelDatei).st_mtime
+  lastModified = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y um %H:%M:%S')
+  fileDatum = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y')
+  with open_workbook(excelDatei, 'rb') as excelsheet:
+    datemode = excelsheet.datemode
+    tabelle = excelsheet.sheet_by_index(0)
+
+    # Datum aus Exceldatei auslesen.
+    datumZeile  = 2 # Zeile 3
+    datumSpalte = 0 # Spalte A
+    xldate = (tabelle.cell(datumZeile,datumSpalte).value)
+    datumTupel = xldate_as_tuple(xldate, datemode)
+    datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
+    #datum = fileDatum
+
+    zeilen = []
+    for zeilennummer in range(3,tabelle.nrows):
+        zeilen.append(tabelle.row_values(zeilennummer))
+
+    entschuldigungKopf+='<table>'
+    for zeile in zeilen:
+       if (zeile[0] != "") & (zeile [1] != ""):
+           entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
+           zeilenpuffer = ""
+           for spalte in zeile:
+              if spalte == "":
+                continue
+              zeilenpuffer+='{}, '.format(spalte)
+              anzahlEntschuldigteSchueler+=1
+
+           zeilenpuffer=zeilenpuffer.partition(", ")[2]
+           anzahlEntschuldigteSchueler-=1
+           entschuldigung+= zeilenpuffer.strip(", ")
+           entschuldigung+='</td></tr>'
+    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>'.format(datum, anzahlEntschuldigteSchueler, lastModified)
+    entschuldigungFuss='</table></div>'
 # Seite zusammensetzen.
 
-htmlseite = htmlkopf + htmlbody + inhalt + htmlfuss
+if anzahlEntschuldigteSchueler > 0:
+   entschuldigungsblock = entschuldigungKopf + entschuldigung + entschuldigungFuss
+else:
+   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>'.format(lastModified)
+
+if excelDateiExistiert:
+   pass
+else:
+   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>'
+
+htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
 
 try:
 	datei = open(html_dateiname,"w")
