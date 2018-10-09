@@ -15,20 +15,28 @@ reload(sys)
 
 debugflag = False
 #debugflag = True
-excelDateiExistiert = False
+############# Hier konfigurieren falls nötig: 
 excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
-lastModified = ""
-try:
-  f = open(excelDatei)
-  f.close()
-  excelDateiExistiert = True
-except:
-  excelDateiExistiert = False
-
 url = "https://dein-nextcloud-server.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
 html_dateiname = "/var/www/html/wilma.html"
 css_dateiname  = "wilma.css"
 meta_refresh_rate = "5"
+############# ab hier gibts nichts zu ändern...
+
+# Ein paar Variablen initialisieren:
+excelDateiExistiert = False
+try:
+  f = open(excelDatei)
+  f.close()
+  unixTimeStamp = os.stat(excelDatei).st_mtime
+  lastModified = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y um %H:%M:%S')
+  fileDatum = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y')
+  excelDateiExistiert = True
+except:
+  excelDateiExistiert = False
+  lastModified = "n/a"
+  fileDatum = "n/a"
+
 if debugflag:
    print("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
@@ -154,9 +162,6 @@ entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
 if excelDateiExistiert:
-  unixTimeStamp = os.stat(excelDatei).st_mtime
-  lastModified = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y um %H:%M:%S')
-  fileDatum = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y')
   with open_workbook(excelDatei, 'rb') as excelsheet:
     datemode = excelsheet.datemode
     tabelle = excelsheet.sheet_by_index(0)
