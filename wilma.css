@@ -175,3 +175,10 @@ body {
   margin-right: 5px;
  }
 
+.entschuldigung { 
+  margin: 15px;
+  border: 1px solid blue;
+  border-radius: 10px;
+  box-shadow: 3px 3px;
+  background-color: rgb(255,250,220); 
+}
