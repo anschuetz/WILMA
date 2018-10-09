@@ -109,7 +109,7 @@ try:
                            prioritaetstimmt = 0 == prio
 
                         if (prozent) & prioritaetstimmt & vor_ende & nach_beginn:
-                                # css-Klasse passend zur Priorität auswählen
+				# css-Klasse passend zur Priorität auswählen
                                 div_klasse = "eintragtodo"+str(prio)
                                 if debugflag:
                                                 print("------------------------------------------------------------")
