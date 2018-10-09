@@ -70,9 +70,9 @@ htmlbody+='    </span>'
 htmlbody+='    <div class="zeit">'+str(now)+'</div>'
 
 # Den Abschluss der Seite
-htmlfuss ="   <div>"
+htmlfuss ='   <div class="eintrag"><div class="beschreibung">'
 htmlfuss+="<iframe src=\"http://localhost/fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>"
-htmlfuss+="   </div>"
+htmlfuss+="   </div></div>"
 htmlfuss+=' </body>'
 htmlfuss+='</html>'
 
