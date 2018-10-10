@@ -5,6 +5,12 @@ body {
   font-size: 14px;
 }
 
+.fehlermeldung {
+  margin: 5px;
+  background-color: red;
+  font-family: arial, sans-serif;
+  font-size: 7px;
+}
 .eintrag { 
   margin: 15px;
   border: 1px solid blue;
