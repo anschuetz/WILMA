@@ -5,22 +5,30 @@
 ## jesko.anschuetz@linuxmuster.net - Juni 2018	                     ##
 ##                                                                   ##
 #######################################################################
-import pytz, requests, sys, os
+import pytz, requests, sys, os, configparser
 from importlib import reload
 from datetime import datetime, timedelta
 from ics import Calendar
 from urllib.request import urlopen
 from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
-
 debugflag = False
 #debugflag = True
-############# Hier konfigurieren falls nötig: 
-excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
-url = "https://dein-nextcloud-server.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
-html_dateiname = "/var/www/html/wilma.html"
-css_dateiname  = "wilma.css"
-meta_refresh_rate = "5"
+# Config auslesen...
+config = configparser.ConfigParser()
+config.sections()
+config.read('/home/pi/WILMA/wilma.ini')
+excelDatei = config['WILMA']['excelDatei']
+url = config['WILMA']['kalenderURL']
+html_dateiname = config['WILMA']['htmlDatei']
+css_dateiname = config['WILMA']['cssDatei']
+meta_refresh_rate = config['WILMA']['metaRefreshRate']
+############# Hier konfigurieren falls nötig:
+#excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
+#url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
+#html_dateiname = "/var/www/html/wilma.html"
+#css_dateiname  = "wilma.css"
+#meta_refresh_rate = "5"
 ############# ab hier gibts nichts zu ändern...
 
 # Ein paar Variablen initialisieren:
