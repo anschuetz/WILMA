@@ -23,6 +23,9 @@ url = config['WILMA']['kalenderURL']
 html_dateiname = config['WILMA']['htmlDatei']
 css_dateiname = config['WILMA']['cssDatei']
 meta_refresh_rate = config['WILMA']['metaRefreshRate']
+datumZeile  = config['WILMA']['datumZeile'] 
+datumSpalte = config['WILMA']['datumSpalte']
+ersteZeileKlassen = config['WILMA']['ersteZeileKlassen']
 ############# Hier konfigurieren falls nötig:
 #excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
 #url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
@@ -175,15 +178,14 @@ if excelDateiExistiert:
     tabelle = excelsheet.sheet_by_index(0)
 
     # Datum aus Exceldatei auslesen.
-    datumZeile  = 2 # Zeile 3
-    datumSpalte = 0 # Spalte A
+
     xldate = (tabelle.cell(datumZeile,datumSpalte).value)
     datumTupel = xldate_as_tuple(xldate, datemode)
     datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
     #datum = fileDatum
 
     zeilen = []
-    for zeilennummer in range(3,tabelle.nrows):
+    for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
         zeilen.append(tabelle.row_values(zeilennummer))
 
     entschuldigungKopf+='<table>'
