@@ -23,9 +23,9 @@ url = config['WILMA']['kalenderURL']
 html_dateiname = config['WILMA']['htmlDatei']
 css_dateiname = config['WILMA']['cssDatei']
 meta_refresh_rate = config['WILMA']['metaRefreshRate']
-datumZeile  = config['WILMA']['datumZeile'] 
-datumSpalte = config['WILMA']['datumSpalte']
-ersteZeileKlassen = config['WILMA']['ersteZeileKlassen']
+datumZeile  = int(config['WILMA']['datumZeile'])
+datumSpalte = int(config['WILMA']['datumSpalte'])
+ersteZeileKlassen = int(config['WILMA']['ersteZeileKlassen'])
 ############# Hier konfigurieren falls nötig:
 #excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
 #url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
