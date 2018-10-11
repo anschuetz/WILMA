@@ -14,56 +14,80 @@ from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
 debugflag = False
 #debugflag = True
-# Config auslesen...
-config = configparser.ConfigParser()
-config.sections()
-config.read('/home/pi/WILMA/wilma.ini')
-excelDatei = config['WILMA']['excelDatei']
-url = config['WILMA']['kalenderURL']
-html_dateiname = config['WILMA']['htmlDatei']
-css_dateiname = config['WILMA']['cssDatei']
-meta_refresh_rate = config['WILMA']['metaRefreshRate']
-datumZeile  = int(config['WILMA']['datumZeile'])
-datumSpalte = int(config['WILMA']['datumSpalte'])
-ersteZeileKlassen = int(config['WILMA']['ersteZeileKlassen'])
-############# Hier konfigurieren falls nötig:
-#excelDatei = "/home/shares/infodisplay/entschuldigung.xls"
-#url = "https://nextcloud.morzgut.de/remote.php/dav/public-calendars/RAKfZs4TXrtqs9FK?export"
-#html_dateiname = "/var/www/html/wilma.html"
-#css_dateiname  = "wilma.css"
-#meta_refresh_rate = "5"
-############# ab hier gibts nichts zu ändern...
+# konfiguration auslesen...
+konfiguration = configparser.ConfigParser()
+konfiguration.sections()
+konfiguration.read('/home/pi/WILMA/wilma.ini')
+nameDerExceldatei = konfiguration['WILMA']['excelDatei']
+urlDesKalenders = konfiguration['WILMA']['kalenderURL']
+nameDerHTMLdatei = konfiguration['WILMA']['htmlDatei']
+nameDerCSSdatei = konfiguration['WILMA']['cssDatei']
+metaRefreshRate = konfiguration['WILMA']['metaRefreshRate']
+datumzelleZeile  = int(konfiguration['WILMA']['datumZeile'])
+datumzelleSpalte = int(konfiguration['WILMA']['datumSpalte'])
+ersteZeileKlassen = int(konfiguration['WILMA']['ersteZeileKlassen'])
+
+def debugprint(message):
+        if debugflag:
+                print(message)
+
+def fileExists(filename):
+  try:
+          f = open(filename)
+          f.close()
+          return True
+  except FileNotFoundError:
+          return False
+  except Exception as detail:
+          print("unbehandelter Fehler in Funktion 'fileExists': >>>", detail, "<<<")
+          exit(1)
+
+def getUnixTimestampFromFile(filename):
+        try:
+                return os.stat(filename).st_mtime
+        except FileNotFoundError:
+                print("File Not Found Error in getUnixTimestpamFromFile")
+                return 0
+        except Exception as detail:
+          print("unbehandelter Fehler in Funktion 'getUnixTimestampFromFile': >>>", detail, "<<<")
+          exit(1)
+
+def getDatumUhrzeitFromUnixTimestamp(timestamp):
+        if timestamp == 0:
+                return "kein korrektes Datum ermittelt"
+        else:
+                return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y um %H:%M:%S')     
+
+def getDatumFromUnixTimestamp(timestamp):
+        if timestamp == 0:
+                return "kein korrektes Datum ermittelt"
+        else:
+                return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')     
+
+def jetzt(zeitzone):
+        now_utc = datetime.now(pytz.utc)
+        tz      = pytz.timezone(zeitzone)
+        return tz.normalize(now_utc)
+
 
 # Ein paar Variablen initialisieren:
-excelDateiExistiert = False
-try:
-  f = open(excelDatei)
-  f.close()
-  unixTimeStamp = os.stat(excelDatei).st_mtime
-  lastModified = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y um %H:%M:%S')
-  fileDatum = datetime.fromtimestamp(unixTimeStamp).strftime('%d.%m.%Y')
-  excelDateiExistiert = True
-except:
-  excelDateiExistiert = False
-  lastModified = "n/a"
-  fileDatum = "n/a"
+excelDateiExistiert = fileExists(nameDerExceldatei)
+unixTimeStamp = getUnixTimestampFromFile(nameDerExceldatei)
+lastModified = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
+fileDatum = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
 
-if debugflag:
-   print("############# Programmstart ##############")
+debugprint("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
-now_utc = datetime.now(pytz.utc)
-tz      = pytz.timezone('Europe/Berlin')
-now		= tz.normalize(now_utc)
-if debugflag:
-   print(now)
+now	= jetzt('Europe/Berlin')
+debugprint(now)
 
 # HTML-Datei vorbereiten
 # Den Kopf:
 htmlkopf ='<html>'
 htmlkopf+=' <head>'
-htmlkopf+='   <link rel="stylesheet" href="'+css_dateiname+'">'
+htmlkopf+='   <link rel="stylesheet" href="'+nameDerCSSdatei+'">'
 htmlkopf+='   <meta charset="UTF-8">'
-htmlkopf+='   <meta http-equiv="refresh" content="'+meta_refresh_rate+'">'
+htmlkopf+='   <meta http-equiv="refresh" content="'+metaRefreshRate+'">'
 htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>'
 htmlkopf+=' </head>'
 htmlkopf+=' <body>'
@@ -90,7 +114,7 @@ htmlfuss+='</html>'
 inhalt = " "
 # Kalender abfragen
 try:
-        c = Calendar(requests.get(url).text)
+        c = Calendar(requests.get(urlDesKalenders).text)
         if debugflag:
                         print(c)
         prio = 9
@@ -173,13 +197,13 @@ entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
 if excelDateiExistiert:
-  with open_workbook(excelDatei, 'rb') as excelsheet:
+  with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
     datemode = excelsheet.datemode
     tabelle = excelsheet.sheet_by_index(0)
 
     # Datum aus Exceldatei auslesen.
 
-    xldate = (tabelle.cell(datumZeile,datumSpalte).value)
+    xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
     datumTupel = xldate_as_tuple(xldate, datemode)
     datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
     #datum = fileDatum
@@ -220,7 +244,7 @@ else:
 htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
 
 try:
-	datei = open(html_dateiname,"w")
+	datei = open(nameDerHTMLdatei,"w")
 	datei.write(htmlseite)
 	datei.close()
 except all:
