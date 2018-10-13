@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 debugflag = True
 
 def fileExists(filename):
@@ -5,7 +6,8 @@ def fileExists(filename):
           f = open(filename)
           f.close()
           return True
-  except FileNotFoundError:
+  except IOError as detail:
+          print(detail)
           return False
   except Exception as detail:
           print("unbehandelter Fehler in Funktion 'fileExists'", detail)
@@ -14,5 +16,12 @@ def fileExists(filename):
 def debugprint(message):
         if debugflag:
                 print(message)
+
+
+
+open("asf")
+print("oberster try-block")
 debugprint("Debugmodus an")
 print(fileExists("testpy"))
+print(fileExists("test.py"))
+        

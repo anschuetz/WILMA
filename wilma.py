@@ -59,33 +59,33 @@ if debugflag:
 
 # HTML-Datei vorbereiten
 # Den Kopf:
-htmlkopf ='<html>'
-htmlkopf+=' <head>'
-htmlkopf+='   <link rel="stylesheet" href="'+css_dateiname+'">'
-htmlkopf+='   <meta charset="UTF-8">'
-htmlkopf+='   <meta http-equiv="refresh" content="'+meta_refresh_rate+'">'
-htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>'
-htmlkopf+=' </head>'
-htmlkopf+=' <body>'
+htmlkopf ='<html>\n'
+htmlkopf+=' <head>\n'
+htmlkopf+='   <link rel="stylesheet" href="'+css_dateiname+'">\n'
+htmlkopf+='   <meta charset="UTF-8">\n'
+htmlkopf+='   <meta http-equiv="refresh" content="'+meta_refresh_rate+'">\n'
+htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>\n'
+htmlkopf+=' </head>\n'
+htmlkopf+=' <body>\n'
 
 # Die Einleitung vom Hauptteil
-htmlbody ='    <div class="kopf">'
-htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>'
-htmlbody+='    <span class="ueberschrift2">'
-htmlbody+='        <span class="fett">W</span>ichtige '
-htmlbody+='        <span class="fett">I</span>nformationen '
-htmlbody+='        <span class="fett">L</span>esbar am '
-htmlbody+='        <span class="fett">M</span>onitor '
-htmlbody+='        <span class="fett">A</span>ngezeigt'
-htmlbody+='    </span>'
-htmlbody+='    <div class="zeit">'+str(now)+'</div>'
+htmlbody ='    <div class="kopf">\n'
+htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>\n'
+htmlbody+='    <span class="ueberschrift2">\n'
+htmlbody+='        <span class="fett">W</span>ichtige \n'
+htmlbody+='        <span class="fett">I</span>nformationen \n'
+htmlbody+='        <span class="fett">L</span>esbar am \n'
+htmlbody+='        <span class="fett">M</span>onitor \n'
+htmlbody+='        <span class="fett">A</span>ngezeigt\n'
+htmlbody+='    </span>\n'
+htmlbody+='    <div class="zeit">'+str(now)+'</div>\n'
 
 # Den Abschluss der Seite
-htmlfuss ='   <div class="eintrag"><div class="beschreibung">'
-htmlfuss+="<iframe src=\"http://localhost/fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>"
-htmlfuss+="   </div></div>"
-htmlfuss+=' </body>'
-htmlfuss+='</html>'
+htmlfuss ='   <div class="eintrag"><div class="beschreibung">\n'
+htmlfuss+="<iframe src=\"http://localhost/fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>\n"
+htmlfuss+="   </div></div>\n"
+htmlfuss+=' </body>\n'
+htmlfuss+='</html>\n'
 
 inhalt = " "
 # Kalender abfragen
@@ -125,16 +125,16 @@ try:
                                 if debugflag:
                                                 print("------------------------------------------------------------")
                                                 print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
-                                inhalt+='   <div class="'+div_klasse+'">'
+                                inhalt+='   <div class="'+div_klasse+'">\n'
                                 inhalt+='     <div class="titel">' + t.name
                                 if debugflag:
                                                 #nur im debugmodus die Priorität dazu schreiben
                                                 inhalt+=' (Prio:' + str(t.priority) + '/'+ str(prio) +')'
-                                inhalt+='     </div>'
+                                inhalt+='     </div>\n'
                                 # Nur bei gesetzter Beschreibung, diese auch ausgeben
                                 if repr(t.description) != "None":
-                                        inhalt+='<div class="beschreibung">'+t.description+'</div>'
-                                inhalt+='   </div>'
+                                        inhalt+='<div class="beschreibung">'+t.description+'</div>\n'
+                                inhalt+='   </div>\n'
                 prio -= 1
 except all:
         print("Todos lesen klappt nicht")
@@ -152,23 +152,23 @@ try:
                         print("------------------------------------------------------------")
                         print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
                         print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
-                 inhalt+='   <div class="'+div+'">'
-                 inhalt+='     <div class="titel">' + e.name + '</div>'
+                 inhalt+='   <div class="'+div+'">\n'
+                 inhalt+='     <div class="titel">' + e.name + '</div>\n'
                  if repr(e.location) != "None":
-                        inhalt+='     <div class="ort">'+e.location+'</div>'
+                        inhalt+='     <div class="ort">'+e.location+'</div>\n'
                  if repr(e.description) != "None":
-                        inhalt+='     <div class="beschreibung">'+e.description+'</div>'
+                        inhalt+='     <div class="beschreibung">'+e.description+'</div>\n'
                  inhalt+="   </div>"
 except all:
-        inhalt+='<div class="eintrag">'
-        inhalt+='<div class="titel">etwas ist schief gelaufen bei der Abfrage</div>'
-        inhalt+='</div>'
+        inhalt+='<div class="eintrag">\n'
+        inhalt+='<div class="titel">etwas ist schief gelaufen bei der Abfrage</div>\n'
+        inhalt+='</div>\n'
 
 
 # die Entschuldtigungen
 anzahlEntschuldigteSchueler=0
 
-entschuldigungKopf ='<div class="entschuldigung">'
+entschuldigungKopf ='<div class="entschuldigung">\n'
 entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
@@ -188,7 +188,7 @@ if excelDateiExistiert:
     for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
         zeilen.append(tabelle.row_values(zeilennummer))
 
-    entschuldigungKopf+='<table>'
+    entschuldigungKopf+='<table>\n'
     for zeile in zeilen:
        if (zeile[0] != "") & (zeile [1] != ""):
            entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
@@ -202,20 +202,20 @@ if excelDateiExistiert:
            zeilenpuffer=zeilenpuffer.partition(", ")[2]
            anzahlEntschuldigteSchueler-=1
            entschuldigung+= zeilenpuffer.strip(", ")
-           entschuldigung+='</td></tr>'
-    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>'.format(datum, anzahlEntschuldigteSchueler, lastModified)
-    entschuldigungFuss='</table></div>'
+           entschuldigung+='</td></tr>\n'
+    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
+    entschuldigungFuss='</table></div>\n'
 # Seite zusammensetzen.
 
 if anzahlEntschuldigteSchueler > 0:
    entschuldigungsblock = entschuldigungKopf + entschuldigung + entschuldigungFuss
 else:
-   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>'.format(lastModified)
+   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>\n'.format(lastModified)
 
 if excelDateiExistiert:
    pass
 else:
-   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>'
+   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>\n'
 
 htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
 

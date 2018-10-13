@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 #######################################################################
 ## MORZ-WILMA: Wichtige Informationen Leserlich am Monitor Angezeigt ##
 ##                                                                   ##
@@ -12,20 +13,26 @@ from ics import Calendar
 from urllib.request import urlopen
 from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
+configfile = "testconfig.ini"
 debugflag = False
+iframeFlag = False # Error.log unten auf der Seite einbinden... sollte nicht notwendig sein.
 #debugflag = True
 # konfiguration auslesen...
-konfiguration = configparser.ConfigParser()
-konfiguration.sections()
-konfiguration.read('/home/pi/WILMA/wilma.ini')
-nameDerExceldatei = konfiguration['WILMA']['excelDatei']
-urlDesKalenders = konfiguration['WILMA']['kalenderURL']
-nameDerHTMLdatei = konfiguration['WILMA']['htmlDatei']
-nameDerCSSdatei = konfiguration['WILMA']['cssDatei']
-metaRefreshRate = konfiguration['WILMA']['metaRefreshRate']
-datumzelleZeile  = int(konfiguration['WILMA']['datumZeile'])
-datumzelleSpalte = int(konfiguration['WILMA']['datumSpalte'])
-ersteZeileKlassen = int(konfiguration['WILMA']['ersteZeileKlassen'])
+try:
+        konfiguration = configparser.ConfigParser()
+        konfiguration.sections()
+        konfiguration.read(configfile)
+        nameDerExceldatei = konfiguration['WILMA']['excelDatei']
+        urlDesKalenders = konfiguration['WILMA']['kalenderURL']
+        nameDerHTMLdatei = konfiguration['WILMA']['htmlDatei']
+        nameDerCSSdatei = konfiguration['WILMA']['cssDatei']
+        metaRefreshRate = konfiguration['WILMA']['metaRefreshRate']
+        datumzelleZeile  = int(konfiguration['WILMA']['datumZeile'])
+        datumzelleSpalte = int(konfiguration['WILMA']['datumSpalte'])
+        ersteZeileKlassen = int(konfiguration['WILMA']['ersteZeileKlassen'])
+except Exception as detail:
+        print("Fehler in der Konfigurationsdatei {} beim Schlüssel {}".format(configfile, detail))
+        exit(1)
 
 def debugprint(message):
         if debugflag:
@@ -36,7 +43,8 @@ def fileExists(filename):
           f = open(filename)
           f.close()
           return True
-  except FileNotFoundError:
+  except IOError as detail:
+          debugprint(detail)
           return False
   except Exception as detail:
           print("unbehandelter Fehler in Funktion 'fileExists': >>>", detail, "<<<")
@@ -45,8 +53,8 @@ def fileExists(filename):
 def getUnixTimestampFromFile(filename):
         try:
                 return os.stat(filename).st_mtime
-        except FileNotFoundError:
-                print("File Not Found Error in getUnixTimestpamFromFile")
+        except IOError as detail:
+                print("File Not Found Error in getUnixTimestpamFromFile: ", detail)
                 return 0
         except Exception as detail:
           print("unbehandelter Fehler in Funktion 'getUnixTimestampFromFile': >>>", detail, "<<<")
@@ -82,45 +90,60 @@ now	= jetzt('Europe/Berlin')
 debugprint(now)
 
 # HTML-Datei vorbereiten
+htmlkopf = ""
+htmlbody = ""
+htmlfuss = ""
+inhalt = ""
+htmlTodos = ""
+htmlEvents = ""
+htmlXLS = ""
+
 # Den Kopf:
-htmlkopf ='<html>'
-htmlkopf+=' <head>'
-htmlkopf+='   <link rel="stylesheet" href="'+nameDerCSSdatei+'">'
-htmlkopf+='   <meta charset="UTF-8">'
-htmlkopf+='   <meta http-equiv="refresh" content="'+metaRefreshRate+'">'
-htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>'
-htmlkopf+=' </head>'
-htmlkopf+=' <body>'
+htmlkopf+='<html>\n'
+htmlkopf+=' <head>\n'
+htmlkopf+='   <link rel="stylesheet" href="'+nameDerCSSdatei+'">\n'
+htmlkopf+='   <meta charset="UTF-8">\n'
+htmlkopf+='   <meta http-equiv="refresh" content="'+metaRefreshRate+'">\n'
+htmlkopf+='   <title>WILMA - Wichtige Informationen Leserlich am Monitor Angezeigt</title>\n'
+htmlkopf+=' </head>\n'
+htmlkopf+=' <body>\n'
 
 # Die Einleitung vom Hauptteil
-htmlbody ='    <div class="kopf">'
-htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>'
-htmlbody+='    <span class="ueberschrift2">'
+htmlbody+='    <div class="kopf">\n'
+htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>\n'
+htmlbody+='    <span class="ueberschrift2">\n'
 htmlbody+='        <span class="fett">W</span>ichtige '
 htmlbody+='        <span class="fett">I</span>nformationen '
 htmlbody+='        <span class="fett">L</span>esbar am '
 htmlbody+='        <span class="fett">M</span>onitor '
 htmlbody+='        <span class="fett">A</span>ngezeigt'
-htmlbody+='    </span>'
-htmlbody+='    <div class="zeit">'+str(now)+'</div>'
+htmlbody+='    </span>\n'
+htmlbody+='    <div class="zeit">'+str(now)+'</div>\n'
 
 # Den Abschluss der Seite
-htmlfuss ='   <div class="eintrag"><div class="beschreibung">'
-htmlfuss+="<iframe src=\"http://localhost/fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>"
-htmlfuss+="   </div></div>"
-htmlfuss+=' </body>'
-htmlfuss+='</html>'
 
-inhalt = " "
+if iframeFlag:
+        htmlfuss+='   <div class="eintrag"><div class="beschreibung">\n'
+        htmlfuss+="<iframe src=\"fehler.html\" style=\"border:0px #FFFFFF none;\" name=\"errorlog\" scrolling=\"no\" frameborder=\"0\" align=aus marginheight=\"0px\" marginwidth=\"0px\" height=\"30\" width=\"640\"></iframe>"
+        htmlfuss+="   </div></div>"
+htmlfuss+=' </body>\n'
+htmlfuss+='</html>\n'
+
+
 # Kalender abfragen
 try:
         c = Calendar(requests.get(urlDesKalenders).text)
-        if debugflag:
-                        print(c)
+        debugprint(c)
+        debugprint(c.todos)
         prio = 9
         # Nach Priorität geordnet ausgeben, beginnend mit der höchsten.
         while prio >= 0:
                 for t in c.todos:
+                        if repr(t.completed) == "None":
+                                debugprint("---------------------\n  bearbeite {} \n ------------------".format(t))
+                        else:
+                                debugprint("completed Task {} ... skipping".format(repr(t)))
+                                continue
                         # falls keine Fälligkeitszeit angegeben ist, anzeigen, ansonsten prüfen ob noch aktuell
                         if repr(t.due) == "None":
                                 vor_ende = True
@@ -146,22 +169,26 @@ try:
                         if (prozent) & prioritaetstimmt & vor_ende & nach_beginn:
 				# css-Klasse passend zur Priorität auswählen
                                 div_klasse = "eintragtodo"+str(prio)
-                                if debugflag:
-                                                print("------------------------------------------------------------")
-                                                print("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
-                                inhalt+='   <div class="'+div_klasse+'">'
+                                debugprint("------------------------------------------------------------")
+                                debugprint("-- {} -- Erzeuge Todo '{}', {}% erledigt, Priorität-Task {}, Priorität korrigiert: {} ".format(now, t.name, t.percent, t.priority, prio))
+                                inhalt+='   <div class="'+div_klasse+'">\n'
                                 inhalt+='     <div class="titel">' + t.name
                                 if debugflag:
                                                 #nur im debugmodus die Priorität dazu schreiben
                                                 inhalt+=' (Prio:' + str(t.priority) + '/'+ str(prio) +')'
-                                inhalt+='     </div>'
+                                inhalt+='     </div>\n'
                                 # Nur bei gesetzter Beschreibung, diese auch ausgeben
                                 if repr(t.description) != "None":
-                                        inhalt+='<div class="beschreibung">'+t.description+'</div>'
-                                inhalt+='   </div>'
+                                        inhalt+='<div class="beschreibung">'+t.description+'</div>\n'
+                                inhalt+='   </div>\n'
                 prio -= 1
-except all:
-        print("Todos lesen klappt nicht")
+except Exception as detail:
+        message = "Todos lesen klappt nicht: " + repr(detail)
+        print(message)
+        print(t)
+        inhalt+='<div class="eintrag">\n'
+        inhalt+='<div class="fehler">' + message + '</div>\n'
+        inhalt+='</div>\n'
 try:
         # Events durchlaufen
         for e in c.events:
@@ -172,27 +199,29 @@ try:
                      div = "eintragneu"
                  else:
                      div = "eintragalt"
-                 if debugflag:
-                        print("------------------------------------------------------------")
-                        print("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
-                        print("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
-                 inhalt+='   <div class="'+div+'">'
-                 inhalt+='     <div class="titel">' + e.name + '</div>'
+                 
+                 debugprint("------------------------------------------------------------")
+                 debugprint("-- {} -- Erzeuge Event '{}' Startzeit: {} Endzeit {}".format(now, e.name, e.begin, e.end))
+                 debugprint("Alter in Secunden: {}".format(str(abs(e.begin-now).seconds)))
+                 inhalt+='   <div class="'+div+'">\n'
+                 inhalt+='     <div class="titel">' + e.name + '</div>\n'
                  if repr(e.location) != "None":
-                        inhalt+='     <div class="ort">'+e.location+'</div>'
+                        inhalt+='     <div class="ort">'+e.location+'</div>\n'
                  if repr(e.description) != "None":
-                        inhalt+='     <div class="beschreibung">'+e.description+'</div>'
+                        inhalt+='     <div class="beschreibung">'+e.description+'</div>\n'
                  inhalt+="   </div>"
-except all:
-        inhalt+='<div class="eintrag">'
-        inhalt+='<div class="titel">etwas ist schief gelaufen bei der Abfrage</div>'
-        inhalt+='</div>'
+except Exception as detail:
+        message = "Events lesen klappt nicht: " + detail
+        print(message)
+        inhalt+='<div class="eintrag">\n'
+        inhalt+='<div class="fehler">' + message + '</div>\n'
+        inhalt+='</div>\n'
 
 
 # die Entschuldtigungen
 anzahlEntschuldigteSchueler=0
 
-entschuldigungKopf ='<div class="entschuldigung">'
+entschuldigungKopf ='<div class="entschuldigung">\n'
 entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
@@ -212,7 +241,7 @@ if excelDateiExistiert:
     for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
         zeilen.append(tabelle.row_values(zeilennummer))
 
-    entschuldigungKopf+='<table>'
+    entschuldigungKopf+='<table>\n'
     for zeile in zeilen:
        if (zeile[0] != "") & (zeile [1] != ""):
            entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
@@ -226,20 +255,20 @@ if excelDateiExistiert:
            zeilenpuffer=zeilenpuffer.partition(", ")[2]
            anzahlEntschuldigteSchueler-=1
            entschuldigung+= zeilenpuffer.strip(", ")
-           entschuldigung+='</td></tr>'
-    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>'.format(datum, anzahlEntschuldigteSchueler, lastModified)
-    entschuldigungFuss='</table></div>'
+           entschuldigung+='</td></tr>\n'
+    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
+    entschuldigungFuss='</table></div>\n'
 # Seite zusammensetzen.
 
 if anzahlEntschuldigteSchueler > 0:
    entschuldigungsblock = entschuldigungKopf + entschuldigung + entschuldigungFuss
 else:
-   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>'.format(lastModified)
+   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>\n'.format(lastModified)
 
 if excelDateiExistiert:
    pass
 else:
-   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>'
+   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>\n'
 
 htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
 
@@ -247,5 +276,5 @@ try:
 	datei = open(nameDerHTMLdatei,"w")
 	datei.write(htmlseite)
 	datei.close()
-except all:
-	print("error opening/creating file")
+except Exception as detail:
+	print("error opening/creating file: ", detail)
