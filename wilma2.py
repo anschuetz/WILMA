@@ -33,10 +33,6 @@ try:
 except Exception as detail:
         print("Fehler in der Konfigurationsdatei {} beim Schlüssel {}".format(configfile, detail))
         exit(1)
-
-requests.get(urlDesKalenders)
-
-exit(0)
 def debugprint(message):
         if debugflag:
                 print(message)
@@ -79,6 +75,7 @@ def jetzt(zeitzone):
         now_utc = datetime.now(pytz.utc)
         tz      = pytz.timezone(zeitzone)
         return tz.normalize(now_utc)
+
 def createErrorHTML(was, detail):
         message = "{} klappt nicht: {}".format(was, detail)
         print(message)
@@ -121,13 +118,13 @@ htmlkopf+=' <body>\n'
 htmlbody+='    <div class="kopf">\n'
 htmlbody+='    <span class="ueberschrift">MoRZ-WILMA</span>\n'
 htmlbody+='    <span class="ueberschrift2">\n'
-htmlbody+='        <span class="fett">W</span>ichtige '
-htmlbody+='        <span class="fett">I</span>nformationen '
-htmlbody+='        <span class="fett">L</span>esbar am '
-htmlbody+='        <span class="fett">M</span>onitor '
-htmlbody+='        <span class="fett">A</span>ngezeigt'
+htmlbody+='        <span class="fett">W</span>ichtige \n'
+htmlbody+='        <span class="fett">I</span>nformationen \n'
+htmlbody+='        <span class="fett">L</span>esbar am \n'
+htmlbody+='        <span class="fett">M</span>onitor \n'
+htmlbody+='        <span class="fett">A</span>ngezeigt\n'
 htmlbody+='    </span>\n'
-htmlbody+='    <div class="zeit">'+str(now)+'</div>\n'
+htmlbody+='    <div class="zeit">Seite erzeugt am '+now.strftime('%d.%m.%Y um %H:%M')+ ' Wenn das länger als 2 Minuten her ist, stimmt etwas nicht!</div>\n'
 
 # Den Abschluss der Seite
 
@@ -191,7 +188,7 @@ try:
                                 inhalt+='     </div>\n'
                                 # Nur bei gesetzter Beschreibung, diese auch ausgeben
                                 if repr(t.description) != "None":
-                                        inhalt+='<div class="beschreibung">'+t.description+'</div>\n'
+                                        inhalt+='     <div class="beschreibung">'+t.description+'</div>\n'
                                 inhalt+='   </div>\n'
                 prio -= 1
 except Exception as detail:
@@ -265,6 +262,8 @@ try:
                         entschuldigungFuss='</table></div>\n'
 except Exception as detail: 
         entschuldigung += createErrorHTML("Entschuldigungen einbauen", detail)
+        anzahlEntschuldigteSchueler = 1000
+        entschuldigungFuss='</table></div>\n'
         
 # Seite zusammensetzen.
 
@@ -281,8 +280,9 @@ else:
 htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
 
 try:
-	datei = open(nameDerHTMLdatei,"w")
-	datei.write(htmlseite)
-	datei.close()
+        datei = open(nameDerHTMLdatei,"w")
+        datei.write(htmlseite)
+        datei.close()
+        debugprint(htmlseite)
 except Exception as detail:
-	inhalt += createErrorHTML("HTML-Datei zum Schreiben öffnen", detail)
+        print("HTML-Datei zum Schreiben öffnen", detail)
