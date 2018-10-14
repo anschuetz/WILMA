@@ -34,6 +34,9 @@ except Exception as detail:
         print("Fehler in der Konfigurationsdatei {} beim Schlüssel {}".format(configfile, detail))
         exit(1)
 
+requests.get(urlDesKalenders)
+
+exit(0)
 def debugprint(message):
         if debugflag:
                 print(message)
@@ -76,7 +79,13 @@ def jetzt(zeitzone):
         now_utc = datetime.now(pytz.utc)
         tz      = pytz.timezone(zeitzone)
         return tz.normalize(now_utc)
-
+def createErrorHTML(was, detail):
+        message = "{} klappt nicht: {}".format(was, detail)
+        print(message)
+        messagehtml ='<div class="eintrag">\n'
+        messagehtml+='<div class="fehler">' + message + '</div>\n'
+        messagehtml+='</div>\n'
+        return messagehtml
 
 # Ein paar Variablen initialisieren:
 excelDateiExistiert = fileExists(nameDerExceldatei)
@@ -135,6 +144,9 @@ try:
         c = Calendar(requests.get(urlDesKalenders).text)
         debugprint(c)
         debugprint(c.todos)
+except Exception as detail:
+        inhalt += createErrorHTML("Kalender abrufen", detail)
+try:
         prio = 9
         # Nach Priorität geordnet ausgeben, beginnend mit der höchsten.
         while prio >= 0:
@@ -183,12 +195,8 @@ try:
                                 inhalt+='   </div>\n'
                 prio -= 1
 except Exception as detail:
-        message = "Todos lesen klappt nicht: " + repr(detail)
-        print(message)
-        print(t)
-        inhalt+='<div class="eintrag">\n'
-        inhalt+='<div class="fehler">' + message + '</div>\n'
-        inhalt+='</div>\n'
+        inhalt += createErrorHTML("Todos lesen", detail)
+
 try:
         # Events durchlaufen
         for e in c.events:
@@ -211,11 +219,7 @@ try:
                         inhalt+='     <div class="beschreibung">'+e.description+'</div>\n'
                  inhalt+="   </div>"
 except Exception as detail:
-        message = "Events lesen klappt nicht: " + detail
-        print(message)
-        inhalt+='<div class="eintrag">\n'
-        inhalt+='<div class="fehler">' + message + '</div>\n'
-        inhalt+='</div>\n'
+        inhalt += createErrorHTML("Events lesen", detail)
 
 
 # die Entschuldtigungen
@@ -225,39 +229,43 @@ entschuldigungKopf ='<div class="entschuldigung">\n'
 entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
-if excelDateiExistiert:
-  with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
-    datemode = excelsheet.datemode
-    tabelle = excelsheet.sheet_by_index(0)
+try:
+        if excelDateiExistiert:
+                with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
+                        datemode = excelsheet.datemode
+                        tabelle = excelsheet.sheet_by_index(0)
 
-    # Datum aus Exceldatei auslesen.
+                        # Datum aus Exceldatei auslesen.
 
-    xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
-    datumTupel = xldate_as_tuple(xldate, datemode)
-    datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
-    #datum = fileDatum
+                        xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
+                        datumTupel = xldate_as_tuple(xldate, datemode)
+                        datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
+                        #datum = fileDatum
 
-    zeilen = []
-    for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
-        zeilen.append(tabelle.row_values(zeilennummer))
+                        zeilen = []
+                        for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
+                                zeilen.append(tabelle.row_values(zeilennummer))
 
-    entschuldigungKopf+='<table>\n'
-    for zeile in zeilen:
-       if (zeile[0] != "") & (zeile [1] != ""):
-           entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
-           zeilenpuffer = ""
-           for spalte in zeile:
-              if spalte == "":
-                continue
-              zeilenpuffer+='{}, '.format(spalte)
-              anzahlEntschuldigteSchueler+=1
+                        entschuldigungKopf+='<table>\n'
+                        for zeile in zeilen:
+                                if (zeile[0] != "") & (zeile [1] != ""):
+                                        entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
+                                        zeilenpuffer = ""
+                                        for spalte in zeile:
+                                                if spalte == "":
+                                                        continue
+                                                zeilenpuffer+='{}, '.format(spalte)
+                                                anzahlEntschuldigteSchueler+=1
 
-           zeilenpuffer=zeilenpuffer.partition(", ")[2]
-           anzahlEntschuldigteSchueler-=1
-           entschuldigung+= zeilenpuffer.strip(", ")
-           entschuldigung+='</td></tr>\n'
-    entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
-    entschuldigungFuss='</table></div>\n'
+                                                zeilenpuffer=zeilenpuffer.partition(", ")[2]
+                                                anzahlEntschuldigteSchueler-=1
+                                        entschuldigung+= zeilenpuffer.strip(", ")
+                                        entschuldigung+='</td></tr>\n'
+                        entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
+                        entschuldigungFuss='</table></div>\n'
+except Exception as detail: 
+        entschuldigung += createErrorHTML("Entschuldigungen einbauen", detail)
+        
 # Seite zusammensetzen.
 
 if anzahlEntschuldigteSchueler > 0:
@@ -277,4 +285,4 @@ try:
 	datei.write(htmlseite)
 	datei.close()
 except Exception as detail:
-	print("error opening/creating file: ", detail)
+	inhalt += createErrorHTML("HTML-Datei zum Schreiben öffnen", detail)
