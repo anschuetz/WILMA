@@ -230,39 +230,35 @@ entschuldigung=""
 # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
 
 try:
-        if excelDateiExistiert:
-                with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
-                        datemode = excelsheet.datemode
-                        tabelle = excelsheet.sheet_by_index(0)
+  if excelDateiExistiert:
+        with open_workbook(excelDatei, 'rb') as excelsheet:
+                datemode = excelsheet.datemode
+                tabelle = excelsheet.sheet_by_index(0)
+                # Datum aus Exceldatei auslesen.
+                xldate = (tabelle.cell(datumZeile,datumSpalte).value)
+                datumTupel = xldate_as_tuple(xldate, datemode)
+                datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
+                #datum = fileDatum
+                zeilen = []
+                for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
+                        zeilen.append(tabelle.row_values(zeilennummer))
+                entschuldigungKopf+='<table>\n'
+                for zeile in zeilen:
+                        if (zeile[0] != "") & (zeile [1] != ""):
+                                entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
+                                zeilenpuffer = ""
+                                for spalte in zeile:
+                                        if spalte == "":
+                                                continue
+                                        zeilenpuffer+='{}, '.format(spalte)
+                                        anzahlEntschuldigteSchueler+=1
+                                zeilenpuffer=zeilenpuffer.partition(", ")[2]
+                                anzahlEntschuldigteSchueler-=1
+                                entschuldigung+= zeilenpuffer.strip(", ")
+                                entschuldigung+='</td></tr>\n'
+                entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
+                entschuldigungFuss='</table></div>\n'
 
-                        # Datum aus Exceldatei auslesen.
-
-                        xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
-                        datumTupel = xldate_as_tuple(xldate, datemode)
-                        datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
-                        #datum = fileDatum
-
-                        zeilen = []
-                        for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
-                                zeilen.append(tabelle.row_values(zeilennummer))
-
-                        entschuldigungKopf+='<table>\n'
-                        for zeile in zeilen:
-                                if (zeile[0] != "") & (zeile [1] != ""):
-                                        entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
-                                        zeilenpuffer = ""
-                                        for spalte in zeile:
-                                                if spalte == "":
-                                                        continue
-                                                zeilenpuffer+='{}, '.format(spalte)
-                                                anzahlEntschuldigteSchueler+=1
-
-                                                zeilenpuffer=zeilenpuffer.partition(", ")[2]
-                                                anzahlEntschuldigteSchueler-=1
-                                        entschuldigung+= zeilenpuffer.strip(", ")
-                                        entschuldigung+='</td></tr>\n'
-                        entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
-                        entschuldigungFuss='</table></div>\n'
 except Exception as detail: 
         entschuldigung += createErrorHTML("Entschuldigungen einbauen", detail)
         
