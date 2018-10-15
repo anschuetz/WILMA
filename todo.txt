@@ -1,1 +1,2 @@
 Variablen einführen die nach Erfolgreicher Teilaufgabe gesetzt werden, um am Ende einen Status erzeugen zu können
+      
