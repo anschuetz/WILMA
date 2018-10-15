@@ -13,7 +13,7 @@ from ics import Calendar
 from urllib.request import urlopen
 from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
-configfile = "testconfig.ini"
+configfile = "/home/pi/WILMA/wilma.ini"
 debugflag = False
 iframeFlag = False # Error.log unten auf der Seite einbinden... sollte nicht notwendig sein.
 #debugflag = True
@@ -228,11 +228,11 @@ entschuldigung=""
 
 try:
   if excelDateiExistiert:
-        with open_workbook(excelDatei, 'rb') as excelsheet:
+        with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
                 datemode = excelsheet.datemode
                 tabelle = excelsheet.sheet_by_index(0)
                 # Datum aus Exceldatei auslesen.
-                xldate = (tabelle.cell(datumZeile,datumSpalte).value)
+                xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
                 datumTupel = xldate_as_tuple(xldate, datemode)
                 datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
                 #datum = fileDatum
