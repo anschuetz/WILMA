@@ -188,7 +188,7 @@ try:
                                 inhalt+='     </div>\n'
                                 # Nur bei gesetzter Beschreibung, diese auch ausgeben
                                 if repr(t.description) != "None":
-                                        inhalt+='     <div class="beschreibung">'+t.description+'</div>\n'
+                                        inhalt+='     <div class="beschreibung">'+t.description.replace('\n','<br />')+'</div>\n'
                                 inhalt+='   </div>\n'
                 prio -= 1
 except Exception as detail:
@@ -213,7 +213,7 @@ try:
                  if repr(e.location) != "None":
                         inhalt+='     <div class="ort">'+e.location+'</div>\n'
                  if repr(e.description) != "None":
-                        inhalt+='     <div class="beschreibung">'+e.description+'</div>\n'
+                        inhalt+='     <div class="beschreibung">'+e.description.replace('\n','<br />')+'</div>\n'
                  inhalt+="   </div>"
 except Exception as detail:
         inhalt += createErrorHTML("Events lesen", detail)
