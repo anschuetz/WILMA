@@ -13,7 +13,7 @@ from ics import Calendar
 from urllib.request import urlopen
 from xlrd import open_workbook, xldate_as_tuple
 reload(sys)
-configfile = "/home/pi/WILMA/wilma.ini"
+configfile = "/home/wilma/WILMA/wilma.ini"
 debugflag = False
 iframeFlag = False # Error.log unten auf der Seite einbinden... sollte nicht notwendig sein.
 #debugflag = True
@@ -30,6 +30,12 @@ try:
         datumzelleZeile  = int(konfiguration['WILMA']['datumZeile'])
         datumzelleSpalte = int(konfiguration['WILMA']['datumSpalte'])
         ersteZeileKlassen = int(konfiguration['WILMA']['ersteZeileKlassen'])
+
+        nameDerExceldatei2 = konfiguration['WILMA']['excelDatei2']
+        datumzelleZeile2  = int(konfiguration['WILMA']['datumZeile2'])
+        datumzelleSpalte2 = int(konfiguration['WILMA']['datumSpalte2'])
+        ersteZeileKlassen2 = int(konfiguration['WILMA']['ersteZeileKlassen2'])
+
 except Exception as detail:
         print("Fehler in der Konfigurationsdatei {} beim Schlüssel {}".format(configfile, detail))
         exit(1)
@@ -84,11 +90,71 @@ def createErrorHTML(was, detail):
         messagehtml+='</div>\n'
         return messagehtml
 
-# Ein paar Variablen initialisieren:
-excelDateiExistiert = fileExists(nameDerExceldatei)
-unixTimeStamp = getUnixTimestampFromFile(nameDerExceldatei)
-lastModified = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
-fileDatum = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
+
+def createExcelHTML(reason, cssclass, excelfile, datumzelleZ, datumzelleS, startzeileKlassen, legendeHTML):
+    # Ein paar Variablen initialisieren:
+    excelDateiExistiert = fileExists(excelfile)
+    unixTimeStamp = getUnixTimestampFromFile(excelfile)
+    lastModified = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
+    fileDatum = getDatumUhrzeitFromUnixTimestamp( unixTimeStamp )
+    # die Entschuldigungen
+    anzahlEntschuldigteSchueler=0
+    
+    ehtmlKopf ='<div class="' + cssclass + '">\n'
+    entschuldigung=""
+    # Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
+    
+    try:
+      if excelDateiExistiert:
+            with open_workbook(excelfile, 'rb') as excelsheet:
+                    datemode = excelsheet.datemode
+                    tabelle = excelsheet.sheet_by_index(0)
+                    # Datum aus Exceldatei auslesen.
+                    xldate = (tabelle.cell(datumzelleZ,datumzelleS).value)
+                    datumTupel = xldate_as_tuple(xldate, datemode)
+                    datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
+                    zeilen = []
+                    ehtmlBody=""
+                    ehtmlFuss=""
+                    for zeilennummer in range(startzeileKlassen,tabelle.nrows):
+                            zeilen.append(tabelle.row_values(zeilennummer))
+                    ehtmlKopf+='<table>\n'
+                    for zeile in zeilen:
+                            if (zeile[0] != "") & (zeile [1] != ""):
+                                    ehtmlBody+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
+                                    zeilenpuffer = ""
+                                    for spalte in zeile:
+                                            if spalte == "":
+                                                    continue
+                                            zeilenpuffer+='{}, '.format(spalte)
+                                            anzahlEntschuldigteSchueler+=1
+                                    zeilenpuffer=zeilenpuffer.partition(", ")[2]
+                                    anzahlEntschuldigteSchueler-=1
+                                    ehtmlBody+= zeilenpuffer.strip(", ")
+                                    ehtmlBody+='</td></tr>\n'
+                    ehtmlKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler*rinnen {} - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, reason, lastModified)
+                    ehtmlFuss='</table></div>\n'
+    
+    except Exception as detail:
+            ehtmlBody += createErrorHTML("Entschuldigungen einbauen", detail)
+            anzahlEntschuldigteSchueler = 1000
+            ehtmlFuss='</table></div>\n'
+    
+    # Seite zusammensetzen.
+    
+    if anzahlEntschuldigteSchueler > 0:
+       excelHTML = ehtmlKopf + ehtmlBody + ehtmlFuss + legendeHTML
+    else:
+       excelHTML = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>\n'.format(lastModified)
+    
+    if excelDateiExistiert:
+       pass
+    else:
+       excelHTML = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>\n'
+    
+    return excelHTML
+
+
 
 debugprint("############# Programmstart ##############")
 # aktuelle Zeit ermitteln
@@ -219,61 +285,14 @@ except Exception as detail:
         inhalt += createErrorHTML("Events lesen", detail)
 
 
-# die Entschuldtigungen
-anzahlEntschuldigteSchueler=0
 
-entschuldigungKopf ='<div class="entschuldigung">\n'
-entschuldigung=""
-# Modification-Time der Datei holen (Unix-Timestamp), in Datum/Zeit konvertieren und lesbar formatieren:
+legende='<div>Legende: Die in Klammern angegebenen Codes bedeuten:<br />(S)-Schüler hat selbst angerufen<br />(E)-Eltern haben angerufen<br />(M)-Für mehrere Tage entschuldigt<br /></div>'
+entschuldigungsblock = createExcelHTML("entschuldigt", "entschuldigung", nameDerExceldatei, datumzelleZeile, datumzelleSpalte, ersteZeileKlassen, legende)
 
-try:
-  if excelDateiExistiert:
-        with open_workbook(nameDerExceldatei, 'rb') as excelsheet:
-                datemode = excelsheet.datemode
-                tabelle = excelsheet.sheet_by_index(0)
-                # Datum aus Exceldatei auslesen.
-                xldate = (tabelle.cell(datumzelleZeile,datumzelleSpalte).value)
-                datumTupel = xldate_as_tuple(xldate, datemode)
-                datum = "{}.{}.{}".format( datumTupel[2],datumTupel[1],datumTupel[0] )
-                #datum = fileDatum
-                zeilen = []
-                for zeilennummer in range(ersteZeileKlassen,tabelle.nrows):
-                        zeilen.append(tabelle.row_values(zeilennummer))
-                entschuldigungKopf+='<table>\n'
-                for zeile in zeilen:
-                        if (zeile[0] != "") & (zeile [1] != ""):
-                                entschuldigung+='<tr><td><b>{}</b></td><td>'.format(zeile[0])
-                                zeilenpuffer = ""
-                                for spalte in zeile:
-                                        if spalte == "":
-                                                continue
-                                        zeilenpuffer+='{}, '.format(spalte)
-                                        anzahlEntschuldigteSchueler+=1
-                                zeilenpuffer=zeilenpuffer.partition(", ")[2]
-                                anzahlEntschuldigteSchueler-=1
-                                entschuldigung+= zeilenpuffer.strip(", ")
-                                entschuldigung+='</td></tr>\n'
-                entschuldigungKopf+='<tr><th colspan="8">Am {} sind insgesamt {} Schüler entschuldigt - zuletzt aktualisiert am {}</th>\n'.format(datum, anzahlEntschuldigteSchueler, lastModified)
-                entschuldigungFuss='</table></div>\n'
+legende='<div>Legende: Hier gibt es noch keine Legende</div>'
+befreiungsblock = createExcelHTML("vom Präsenzunterricht befreit", "befreiung", nameDerExceldatei2, datumzelleZeile2, datumzelleSpalte2, ersteZeileKlassen2, legende)
 
-except Exception as detail: 
-        entschuldigung += createErrorHTML("Entschuldigungen einbauen", detail)
-        anzahlEntschuldigteSchueler = 1000
-        entschuldigungFuss='</table></div>\n'
-        
-# Seite zusammensetzen.
-
-if anzahlEntschuldigteSchueler > 0:
-   entschuldigungsblock = entschuldigungKopf + entschuldigung + entschuldigungFuss
-else:
-   entschuldigungsblock = '<div class="eintragtodo2"><div class="titel">Stand {} ist kein Schüler entschuldigt!</div></div>\n'.format(lastModified)
-
-if excelDateiExistiert:
-   pass
-else:
-   entschuldigungsblock = '<div class="eintragtodo9"><div class="titel">Entschuldigungsdatei muss an die richtige Stelle kopiert werden!!!</div></div>\n'
-
-htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock + htmlfuss
+htmlseite = htmlkopf + htmlbody + inhalt + entschuldigungsblock +  befreiungsblock + htmlfuss
 
 try:
         datei = open(nameDerHTMLdatei,"w")
